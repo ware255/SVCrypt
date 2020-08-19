@@ -1,0 +1,2 @@
+
+string* encrypt(string* plaintext, )
