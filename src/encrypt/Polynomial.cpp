@@ -37,3 +37,5 @@ int Polynomial::degree()
 {
     return polynomial[0][1];
 }
+
+

@@ -12,6 +12,6 @@ class Polynomial
         Polynomial(vector<vector<int>> &poly);
         string toString();
         int degree();
-
+        Polynomial operator+ (const Polynomial &first, const Polynomial &second);
 
 };
