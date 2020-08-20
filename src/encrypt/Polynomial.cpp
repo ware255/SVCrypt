@@ -17,7 +17,7 @@ Polynomial::Polynomial()
 {
     length = 0;
 }
-Polynomial::Polynomial(vector<vector<int>> &poly)
+Polynomial::Polynomial(vector<Term> &poly)
 {
     //sort(poly.begin(), poly.end(), compareTerm);
     polynomial = poly;
@@ -26,16 +26,58 @@ Polynomial::Polynomial(vector<vector<int>> &poly)
 string Polynomial::toString()
 {
     string output ="";
-    for(vector<int> const& term : polynomial)
+    for(Term term : polynomial)
     {      
-        output += (to_string(term[0]) + "x^" + to_string(term[1]) + " + ");
+        output += (term.toString() + " + ");
     }
+    
+    //If polynomial is empty then show as 0
+    if (output.compare("") == 0)
+        output += "0  ";
+    //Quick fix to remove trailing + 
     output.resize(output.length() - 2);
     return output;
 }
-int Polynomial::degree()
-{
-    return polynomial[0][1];
-}
 
+vector<Term> Polynomial::getRawPoly()
+{
+    return polynomial;
+}
+Polynomial Polynomial::operator+ (Polynomial &adding)
+{
+    vector<Term> ret;
+    vector<Term> polynomial1 = getRawPoly();
+    vector<Term> polynomial2 = adding.getRawPoly();
+    
+
+    vector<Term>::iterator it1 = polynomial.begin();
+    vector<Term>::iterator it2 = polynomial2.begin();
+    while (it1 != polynomial1.end() && it2 != polynomial2.end())
+    {
+        Term current1 = (*it1);
+        Term current2 = (*it2);
+        int degree1 = current1.exp;
+        int degree2 = current2.exp;
+        if (degree1 > degree2)
+        {
+            ret.push_back(current1);
+            advance(it1,1);
+        }
+        if (degree1 < degree2)
+        {
+            ret.push_back(current2);
+            advance(it2,1);
+        }
+        if (degree1 == degree2)
+        {
+            int coeff = current1.coeff + current2.coeff;
+            //cout << (*it1)[0] << endl;
+            Term temp(coeff, degree1);
+            ret.push_back(temp);
+            advance(it1,1);
+            advance(it2,1);
+        }
+    }
+    return Polynomial(ret);
+}
 

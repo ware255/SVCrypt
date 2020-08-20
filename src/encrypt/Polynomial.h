@@ -1,17 +1,18 @@
 #include <vector>
 #include <iostream>
+#include "Term.h"
 
 using namespace std;
 class Polynomial
 {
     private:
         int length = 0;
-        vector<vector<int>> polynomial;
+        vector<Term> polynomial;
     public:
         Polynomial();
-        Polynomial(vector<vector<int>> &poly);
+        Polynomial(vector<Term> &poly);
         string toString();
-        int degree();
-        Polynomial operator+ (const Polynomial &first, const Polynomial &second);
+        Polynomial operator+ (Polynomial &first);
+        vector<Term> getRawPoly();
 
 };
