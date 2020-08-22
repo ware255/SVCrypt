@@ -12,10 +12,11 @@ static bool compareTerm(vector<int> first, vector<int> second)
     int secondExponent = second[2];
     return (firstExponent > secondExponent);
 }
-
+//Default constructor 
 Polynomial::Polynomial()
 {
     length = 0;
+    polynomial = vector<Term>{Term()};
 }
 Polynomial::Polynomial(vector<Term> &poly)
 {
@@ -23,6 +24,18 @@ Polynomial::Polynomial(vector<Term> &poly)
     polynomial = poly;
     Polynomial::length = poly.size();
 }
+//Constructor takes coefficient array ie {1,2,3} and returns a polynomial e.g. 1 + 2x + 3x^2
+Polynomial::Polynomial(int* poly, int len)
+{
+    vector<Term> v;
+    for (int i = 0; i < len; i++)
+    {
+        v.push_back(Term(poly[i], i));
+    }
+    polynomial = v;
+    length = len;
+}
+//Returns string for debugging
 string Polynomial::toString()
 {
     string output ="";
@@ -38,46 +51,75 @@ string Polynomial::toString()
     output.resize(output.length() - 2);
     return output;
 }
-
+//Returns raw poly representation
 vector<Term> Polynomial::getRawPoly()
 {
     return polynomial;
 }
+
+//Overloads addition
 Polynomial Polynomial::operator+ (Polynomial &adding)
 {
-    vector<Term> ret;
     vector<Term> polynomial1 = getRawPoly();
     vector<Term> polynomial2 = adding.getRawPoly();
     
+    int degree1 = length;
+    int degree2 = adding.length;
+    int maxDegree = max(degree1,degree2);
 
-    vector<Term>::iterator it1 = polynomial.begin();
-    vector<Term>::iterator it2 = polynomial2.begin();
-    while (it1 != polynomial1.end() && it2 != polynomial2.end())
+    int ret[maxDegree] = {};
+    for (int i = 0; i < maxDegree; i++)
     {
-        Term current1 = (*it1);
-        Term current2 = (*it2);
-        int degree1 = current1.exp;
-        int degree2 = current2.exp;
-        if (degree1 > degree2)
+        int total = 0;
+        if(i < degree1)
         {
-            ret.push_back(current1);
-            advance(it1,1);
+            total += polynomial1[i].coeff;
         }
-        if (degree1 < degree2)
+        if(i < degree2)
         {
-            ret.push_back(current2);
-            advance(it2,1);
+            total += polynomial2[i].coeff;
         }
-        if (degree1 == degree2)
+        ret[i] = total;
+    }
+    return Polynomial(ret, maxDegree);
+}
+//Overloads multiplication
+Polynomial Polynomial::operator* (Polynomial &p)
+{
+    cout << "Hello" << endl;
+    vector<Term> poly1 = getRawPoly();
+    vector<Term> poly2 = p.getRawPoly();
+    
+
+    int maxLength = (length-1) + (p.length-1) + 1;
+    int ret[maxLength] = {};
+    for (int i = 0; i < length; i++)
+    {
+        for(int j = 0; j < p.length; j++)
         {
-            int coeff = current1.coeff + current2.coeff;
-            //cout << (*it1)[0] << endl;
-            Term temp(coeff, degree1);
-            ret.push_back(temp);
-            advance(it1,1);
-            advance(it2,1);
+            int term = poly1[i].coeff * poly2[j].coeff;
+            ret[i + j] += term;
         }
     }
-    return Polynomial(ret);
+    for (int i : ret)
+    {
+        cout << i << endl;
+    }
+    return Polynomial(ret, maxLength);
 }
-
+//Reduces all coefficients mod x ie 2 + 4x + 5x^2 mod 2 3 = 2 + x + 2x^2
+void Polynomial::reduceCoeffMod(int x)
+{
+    for(Term &term : polynomial)
+    {
+        term.coeff %= x;
+    }
+}
+//reduces all exponents mod x ie 2^x3 + 5x^5 mod 2 = 2x + 3x = 5x
+void Polynomial::reduceExpMod(int x)
+{
+    for(Term &term : polynomial)
+    {
+        term.exp %= x;
+    }
+}
