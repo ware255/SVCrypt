@@ -1,7 +1,5 @@
 #include <vector>
 #include <iostream>
-#include "Term.h"
-
 using namespace std;
 /*
     Class to provide polynomial functionality
@@ -16,21 +14,27 @@ class Polynomial
         int length = 0;
         //Dynamic array of terms in polynomial
         //They will be in order and accessible by index 
-        vector<Term> polynomial;
+        vector<int> polynomial;
     public:
         //Constructors
         Polynomial();
-        Polynomial(vector<Term> &poly);
+        Polynomial(vector<int> &poly);
         Polynomial(int* poly, int len);
         //Returns string for debugging
         string toString();
-        vector<Term> getRawPoly();
+        vector<int> getRawPoly();
         //Overrides addition
         Polynomial operator+(Polynomial &adding);
+        //Overrides subtraction
+        Polynomial operator-(Polynomial &subbing);
         //Overrides multiplication
         Polynomial operator*(Polynomial &p);
+        //Overrides scalar multiplication;
+        Polynomial operator*(int &x);
         void reduceCoeffMod(int x);
-        void reduceExpMod(int x);
-
+        int getCoeff(int index);
+        void setCoeff(int toSet, int index);
+        int getDegree();
+        int getDegree(int* arr, int length);
 
 };

@@ -16,32 +16,72 @@ static bool compareTerm(vector<int> first, vector<int> second)
 Polynomial::Polynomial()
 {
     length = 0;
-    polynomial = vector<Term>{Term()};
+    polynomial = vector<int>{};
 }
-Polynomial::Polynomial(vector<Term> &poly)
+Polynomial::Polynomial(vector<int> &poly)
 {
-    //sort(poly.begin(), poly.end(), compareTerm);
     polynomial = poly;
-    Polynomial::length = poly.size();
+    length = poly.size();
 }
 //Constructor takes coefficient array ie {1,2,3} and returns a polynomial e.g. 1 + 2x + 3x^2
 Polynomial::Polynomial(int* poly, int len)
 {
-    vector<Term> v;
-    for (int i = 0; i < len; i++)
+    int degree = getDegree(poly, len);
+    vector<int> v;
+    for (int i = 0; i < degree + 1; i++)
     {
-        v.push_back(Term(poly[i], i));
+        v.push_back(poly[i]);
     }
     polynomial = v;
-    length = len;
+    length = degree + 1;
+}
+
+int Polynomial::getCoeff(int index)
+{
+    if (index < length)
+    {
+        return polynomial[index];
+    }
+    else
+    {
+        cout << "Index " << index << " out of bounds" << endl;
+        throw "Index out of bounds";
+    }
+    
+}
+
+void Polynomial::setCoeff(int toSet, int index)
+{
+    if (index < length)
+    {
+        polynomial[index] = toSet;
+    }
+    else
+    {
+        cout << "Index out of bounds" << endl;
+        throw "Index out of bounds";
+    }
+    
 }
 //Returns string for debugging
 string Polynomial::toString()
 {
     string output ="";
-    for(Term term : polynomial)
-    {      
-        output += (term.toString() + " + ");
+    for(int i = 0; i < length; i++)
+    {   
+        int coeff = polynomial[i];
+        if (true)
+        {
+            if (i != 0)
+            {
+                output += (to_string(coeff) + "x^" + to_string(i)  + " + ");
+
+            }
+            else
+            {
+                output += (to_string(coeff) + " + ");
+            }
+        }
     }
     
     //If polynomial is empty then show as 0
@@ -52,7 +92,7 @@ string Polynomial::toString()
     return output;
 }
 //Returns raw poly representation
-vector<Term> Polynomial::getRawPoly()
+vector<int> Polynomial::getRawPoly()
 {
     return polynomial;
 }
@@ -60,8 +100,8 @@ vector<Term> Polynomial::getRawPoly()
 //Overloads addition
 Polynomial Polynomial::operator+ (Polynomial &adding)
 {
-    vector<Term> polynomial1 = getRawPoly();
-    vector<Term> polynomial2 = adding.getRawPoly();
+    vector<int> polynomial1 = getRawPoly();
+    vector<int> polynomial2 = adding.getRawPoly();
     
     int degree1 = length;
     int degree2 = adding.length;
@@ -73,22 +113,48 @@ Polynomial Polynomial::operator+ (Polynomial &adding)
         int total = 0;
         if(i < degree1)
         {
-            total += polynomial1[i].coeff;
+            total += polynomial1[i];
         }
         if(i < degree2)
         {
-            total += polynomial2[i].coeff;
+            total += polynomial2[i];
         }
         ret[i] = total;
     }
     return Polynomial(ret, maxDegree);
 }
+
+Polynomial Polynomial::operator-(Polynomial &subbing)
+{
+     vector<int> polynomial1 = getRawPoly();
+    vector<int> polynomial2 = subbing.getRawPoly();
+    
+    int degree1 = length;
+    int degree2 = subbing.length;
+    int maxDegree = max(degree1,degree2);
+
+    int ret[maxDegree] = {};
+    for (int i = 0; i < maxDegree; i++)
+    {
+        int total = 0;
+        if(i < degree1)
+        {
+            total += polynomial1[i];
+        }
+        if(i < degree2)
+        {
+            total -= polynomial2[i];
+        }
+        ret[i] = total;
+    }
+    return Polynomial(ret, maxDegree);
+}
+
 //Overloads multiplication
 Polynomial Polynomial::operator* (Polynomial &p)
 {
-    cout << "Hello" << endl;
-    vector<Term> poly1 = getRawPoly();
-    vector<Term> poly2 = p.getRawPoly();
+    vector<int> poly1 = getRawPoly();
+    vector<int> poly2 = p.getRawPoly();
     
 
     int maxLength = (length-1) + (p.length-1) + 1;
@@ -97,29 +163,57 @@ Polynomial Polynomial::operator* (Polynomial &p)
     {
         for(int j = 0; j < p.length; j++)
         {
-            int term = poly1[i].coeff * poly2[j].coeff;
+            int term = poly1[i] * poly2[j];
             ret[i + j] += term;
         }
     }
-    for (int i : ret)
-    {
-        cout << i << endl;
-    }
+
     return Polynomial(ret, maxLength);
 }
+
+Polynomial Polynomial::operator*(int &x)
+{
+    int ret[length] = {};
+    for (int i = 0; i < length; i++)
+    {
+        ret[i] = (getCoeff(i) * x);
+    }
+    return Polynomial(ret, length);
+}
+
 //Reduces all coefficients mod x ie 2 + 4x + 5x^2 mod 2 3 = 2 + x + 2x^2
 void Polynomial::reduceCoeffMod(int x)
 {
-    for(Term &term : polynomial)
+    for(int &term : polynomial)
     {
-        term.coeff %= x;
+        term %= x;
     }
 }
-//reduces all exponents mod x ie 2^x3 + 5x^5 mod 2 = 2x + 3x = 5x
-void Polynomial::reduceExpMod(int x)
+
+int Polynomial::getDegree()
 {
-    for(Term &term : polynomial)
+    int degree = 0;
+    for(int i = 0; i < length; i++)
     {
-        term.exp %= x;
+        if (polynomial[i] != 0)
+        {
+            degree = i;
+        }
     }
+    return degree;
 }
+
+int Polynomial::getDegree(int* arr, int length)
+{
+    int degree = 0;
+    for(int i = 0; i < length; i++)
+    {
+        if (arr[i] != 0)
+        {
+            degree = i;
+        }
+    }
+    return degree;
+}
+
+
