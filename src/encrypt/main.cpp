@@ -227,31 +227,29 @@ Polynomial invertPolyMod3(Polynomial poly, int n)
     maxPolyArr[n] = 1;
     maxPolyArr[0] = -1;
     Polynomial g(maxPolyArr, n+1);
-    int count = 10;
-    cout << "Start: " << f.toString() << endl;
-    cout << "X:" << g.toString() << endl;
     while(true)
     {   
-        cout << "F: " << f.toString() << endl;
-        cout << "G: " << g.toString() << endl;
         while (f.getCoeff(0) == 0)
         {
+            // f(x) => f(x)/x
             int fDegree = f.getDegree();
             for (int i = 1; i <= fDegree ; i++)
             {
-                f.setCoeff(f.getCoeff(i), i-1); // f(x) => f(x)/x
+                f.setCoeff(f.getCoeff(i), i-1); 
             }
             f.setCoeff(0, fDegree);
+            // c(x) => x * c(x)
             c = c * xPoly;
+            // k => k + 1
             k += 1;
         }
         if (f.getDegree() == 0 && f.getCoeff(0) != 0)
         {
             break;
         }
+        //Swaps polynomials f with g / b with c
         if (f.getDegree() < g.getDegree())
         {
-            cout << "degree <" << endl;
             Polynomial temp = f;
             f = g;
             g = temp;
@@ -270,29 +268,22 @@ Polynomial invertPolyMod3(Polynomial poly, int n)
             f = f + g;
             b = b + c;
         }
-        cout << "Before " << f.toString() << endl;
+        //Reduce all polynomials mod 3
         f.reduceCoeffMod(3);
-        cout << "After" << f.toString() << endl;
         g.reduceCoeffMod(3);
         b.reduceCoeffMod(3);
         c.reduceCoeffMod(3);
-        count--;
     }
 
-    // B(X) => X^(n-k) B(X) (mod X^N - 1)
-    cout << "here0" << endl;
-    cout << k << endl;
-    int size = (((-k) % 3) + 3) % 3 + 1;
-    cout << size << endl;
+    // B(X) => F_0 * X^(-k) B(X) (mod X^N - 1)
+    int size = (((-k) % n) + n) % n;
     int XArr[size+1] = {};
-    cout << "here1" << endl;
-    XArr[size] = 1;
-    cout << "here0" << endl;
+    XArr[size] = 1 * f.getCoeff(0);
     Polynomial XPoly(XArr, size+1);
-    cout << b.toString() << endl;
-    cout << XPoly.toString() << endl;
     b = b * XPoly;
     inversePoly = b.reduceExpMod(n);
+    inversePoly.reduceCoeffMod(3);
+    // Return final inverse
     cout << "INVERSE:" << inversePoly.toString() << endl;
     return inversePoly;
 }
