@@ -184,12 +184,21 @@ Polynomial Polynomial::operator*(int &x)
 //Reduces all coefficients mod x ie 2 + 4x + 5x^2 mod 2 3 = 2 + x + 2x^2
 void Polynomial::reduceCoeffMod(int x)
 {
-    for(int &term : polynomial)
+    for(int i = 0; i < length; i++)
     {
-        term %= x;
+        polynomial[i] = ((polynomial[i] % x) + x) % x;
     }
 }
 
+Polynomial Polynomial::reduceExpMod(int x)
+{
+    int newPoly[x] = {};
+    for(int i = 0; i < length; i++)
+    {
+        newPoly[i%x] += polynomial[i];
+    }
+    return Polynomial(newPoly, x);
+}
 int Polynomial::getDegree()
 {
     int degree = 0;
