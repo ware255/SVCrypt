@@ -181,12 +181,24 @@ Polynomial Polynomial::operator*(int &x)
     return Polynomial(ret, length);
 }
 
-//Reduces all coefficients mod x ie 2 + 4x + 5x^2 mod 2 3 = 2 + x + 2x^2
+//Reduces all coefficients mod x ie 2 + 4x + 5x^2 mod 3 = 2 + x + 2x^2
 void Polynomial::reduceCoeffMod(int x)
 {
     for(int i = 0; i < length; i++)
     {
         polynomial[i] = ((polynomial[i] % x) + x) % x;
+    }
+}
+//Reduces all coefficients to x/2 either side of 0 ie 2 + 4x + 5x^2 mod 3 = -1 + x + -1x^2
+void Polynomial::reduceCoeffMidMod(int x)
+{
+    for(int i = 0; i < length; i++)
+    {
+        int temp = polynomial[i];
+        temp = ((temp % x) + x) % x;
+        if (temp > x/2)
+            temp = temp - x;
+        polynomial[i] = temp;
     }
 }
 

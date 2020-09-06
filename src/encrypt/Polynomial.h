@@ -32,6 +32,7 @@ class Polynomial
         //Overrides scalar multiplication;
         Polynomial operator*(int &x);
         void reduceCoeffMod(int x);
+        void reduceCoeffMidMod(int x);
         Polynomial reduceExpMod(int x);
         int getCoeff(int index);
         void setCoeff(int toSet, int index);
