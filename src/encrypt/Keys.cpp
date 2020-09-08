@@ -1,64 +1,57 @@
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include "Polynomial.h"
-#include "Parameters.h"
-#include <math.h>
-#include <sstream>
-#include <bitset>
 #include "Keys.h"
+#include <math.h>
+static Polynomial genRandPoly(int n, int numOnes, int numNegOnes);
+static Polynomial invertPoly(Polynomial poly, int n, int p);
+static Polynomial invertPolyMod3(Polynomial poly, int n);
+static Polynomial invertPolyMod2(Polynomial poly, int n);
+static Polynomial invertPolyModPrimePower(Polynomial poly, Polynomial inverseModp, int n, int p, int r);
+static int multInverseModPrime(int toInverse, int p);
+static int extenedEuclid(int a, int b, int *x, int *y);
 
-Polynomial genRandPoly(int n, int numOnes, int numNegOnes);
-Polynomial invertPoly(Polynomial poly, int n, int p);
-Polynomial invertPolyMod3(Polynomial poly, int n);
-Polynomial invertPolyMod2(Polynomial poly, int n);
-Polynomial invertPolyModPrimePower(Polynomial poly, Polynomial inverseModp, int n, int p, int r);
-int multInverseModPrime(int toInverse, int p);
-int extenedEuclid(int a, int b, int *x, int *y);
-Polynomial encryptPoly(Polynomial toEncrypt, Polynomial publicKey);
-Polynomial decryptPoly(Polynomial toDecrypt, Polynomial privateKeyF, Polynomial privateKeyFp);
-vector<Polynomial> encryptString(string toEncrypt, Polynomial publicKey);
-string decryptString(vector<Polynomial> toDecrypt, Polynomial privateKeyF, Polynomial privateKeyFp);
-vector<Polynomial> stringToBinPolys(string in, int n);
-string binPolysToString(vector<Polynomial> in, int n);
-string polysToBinaryString(vector<Polynomial> in, int n);
-
-using namespace std;
-int main()
+Keys::Keys(Parameters params)
 {
-    Parameters params(3,2,5,32,11);
-    Keys keys(params);
-    // int fArr[11] = {-1, 1 ,1, 0, -1, 0, 1, 0, 0, 1 , -1};
-    // int gArr[11] = {-1, 0, 1, 1, 0, 1, 0, 0, -1, 0, -1};
-    // Polynomial f(fArr, params.getN());
-    // Polynomial g(gArr, params.getN());
-    // cout << "F(X): " << f.toString() << endl;
-    // cout << "G(X): " << g.toString() << endl;
-    // Polynomial invertedMod2 = invertPolyMod2(f, params.getN());
-    // Polynomial invertedMod3 = invertPolyMod3(f, params.getN());
-    // Polynomial invertedMod32 = invertPolyModPrimePower(f, invertedMod2, params.getN(), params.getX(), params.getR());
-    // cout << "FP(X): " << invertedMod3.toString() << endl;
-    // cout << "FQ(X): " << invertedMod32.toString() << endl;
-    // int arr3[1] = {3};
-    // Polynomial p3(arr3,1);
-    // Polynomial publicKey = ((p3*invertedMod32)*g).reduceExpMod(params.getN());
-    // publicKey.reduceCoeffMod(params.getQ());
-    // cout << "H(X): " << publicKey.toString() << endl;
+    Polynomial f = genRandPoly(params.getN(), 3, 4);
+    Polynomial g = genRandPoly(params.getN(), 3, 4);
+    Polynomial invertedMod2 = invertPolyMod2(f, params.getN());
+    Polynomial invertedMod3 = invertPolyMod3(f, params.getN());
+    Polynomial invertedMod32 = invertPolyModPrimePower(f, invertedMod2, params.getN(), params.getX(), params.getR());
+    int arr3[1] = {3};
+    Polynomial p3(arr3,1);
+    Polynomial h = ((p3*invertedMod32)*g).reduceExpMod(params.getN());
+    h.reduceCoeffMod(params.getQ());
 
-    int mArr[] = {-1,0,0,1,-1,0,0,0,-1,1,1};
-    Polynomial message(mArr, 11);
-    Polynomial encrypted = encryptPoly(message, keys.getPublicKey());
-    Polynomial decrypted = decryptPoly(encrypted, keys.getPrivateKeyF(), keys.getPrivateKeyFp());
-
-    cout << "STRING" << endl;
-    string in = "Hello world, how are you?";
-    vector<Polynomial> enc = encryptString(in, keys.getPublicKey());
-    cout << "Encrypted" << polysToBinaryString(enc, 11) << endl;
-    string dec = decryptString(enc, keys.getPrivateKeyF(), keys.getPrivateKeyFp());
-    cout << dec << endl;
+    publicKey = h;
+    privateKeyF = f;
+    privateKeyG = g;
+    privateKeyFp = invertedMod3;
+    privateKeyFq = invertedMod32;
+    
 }
 
-Polynomial genRandPoly(int n, int numOnes, int numNegOnes)
+Polynomial Keys::getPublicKey()
+{
+    return publicKey;
+}
+Polynomial Keys::getPrivateKeyF()
+{
+    return privateKeyF;
+}
+Polynomial Keys::getPrivateKeyG()
+{
+    return privateKeyG;
+}
+Polynomial Keys::getPrivateKeyFp()
+{
+    return privateKeyFp;
+}
+Polynomial Keys::getPrivateKeyFq()
+{
+    return privateKeyFq;
+}
+
+
+
+static Polynomial genRandPoly(int n, int numOnes, int numNegOnes)
 {
     srand(time(NULL));
     if (numOnes < 0 || numNegOnes < 0 || n < 0)
@@ -83,7 +76,8 @@ Polynomial genRandPoly(int n, int numOnes, int numNegOnes)
     }
     return Polynomial(r, n);
 }
-int multInverseModPrime(int toInverse, int p)
+
+static int multInverseModPrime(int toInverse, int p)
 {
     int x, y;
     int gcd = extenedEuclid(toInverse, p, &x, &y);
@@ -102,7 +96,7 @@ int multInverseModPrime(int toInverse, int p)
 }
 
 // ax + by = gcd(a, b)
-int extenedEuclid(int a, int b, int *x, int *y)
+static int extenedEuclid(int a, int b, int *x, int *y)
 {
     if (a == 0)
     {
@@ -126,7 +120,7 @@ int extenedEuclid(int a, int b, int *x, int *y)
     @input p    - prime integer such that Z modulo pZ is a group
     @output     - inverse of poly
 */
-Polynomial invertPoly(Polynomial poly, int n, int p)
+static Polynomial invertPoly(Polynomial poly, int n, int p)
 {
     //return value
     int inversePolyArr[n] = {};
@@ -214,7 +208,7 @@ Polynomial invertPoly(Polynomial poly, int n, int p)
     @input n    - exponent of X^N - 1 i.e. X^N = 1 therefore X^(N+1) = X^N * X = 1 * X = X
     @output     - inverse of poly
 */
-Polynomial invertPolyMod3(Polynomial poly, int n)
+static Polynomial invertPolyMod3(Polynomial poly, int n)
 {
     //return value
     int inversePolyArr[n] = {};
@@ -300,7 +294,7 @@ Polynomial invertPolyMod3(Polynomial poly, int n)
     @input n    - exponent of X^N - 1 i.e. X^N = 1 therefore X^(N+1) = X^N * X = 1 * X = X
     @output     - inverse of poly
 */
-Polynomial invertPolyMod2(Polynomial poly, int n)
+static Polynomial invertPolyMod2(Polynomial poly, int n)
 {
     //return value
     int inversePolyArr[n] = {};
@@ -384,7 +378,7 @@ Polynomial invertPolyMod2(Polynomial poly, int n)
     @input r            - power of prime
     @output             - inverse of poly mod (p^r)
 */
-Polynomial invertPolyModPrimePower(Polynomial poly, Polynomial inverseModp, int n, int p, int r)
+static Polynomial invertPolyModPrimePower(Polynomial poly, Polynomial inverseModp, int n, int p, int r)
 {
 
     //initialise
@@ -407,162 +401,4 @@ Polynomial invertPolyModPrimePower(Polynomial poly, Polynomial inverseModp, int 
     }
     out.reduceCoeffMod(max);
     return out;
-}
-
-/* 
-    Function to encrypt a given polynomial with a recipients public key
-
-    Encrypted = r * publicKey + toEncypt (mod q) where r is a poly with small coeffs
-
-    @input toEncrypt - Polynomial to encrypt
-    @input publicKey - Public key of recipient for NTRU encryption
-    @output Polynomial encrypted with public key
-
-
-*/
-Polynomial encryptPoly(Polynomial toEncrypt, Polynomial publicKey)
-{
-    int rArr[] = {-1,0,1,1,1,-1,0,-1};
-    Polynomial r(rArr,8);
-    Polynomial rPubKey = (r * publicKey).reduceExpMod(11);
-    Polynomial encrypted = rPubKey + toEncrypt;
-    encrypted.reduceCoeffMod(32);
-    return encrypted;
-}
-
-/* 
-    Function to decrypt a given encrypted polynomial
-
-    Procedure:
-        a = privateKeyF * toDecrypt (mod q)
-        b = a (mod p) = privateKeyF * message (modP)
-        c = b * privateKeyFq = (privateKeyF * privateKeyFq) * message = message (mod p)
-
-    @input toDecrypt - Polynomial to decrypt, encrypted with users public key
-    @input privateKeyF - Private Key F generated by user
-    @input privateKeyFp - Inverse of private key F (mod p)
-    @output Message polynomial
-
-
-*/
-Polynomial decryptPoly(Polynomial toDecrypt, Polynomial privateKeyF, Polynomial privateKeyFp)
-{
-    Polynomial a = (privateKeyF * toDecrypt).reduceExpMod(11);
-    a.reduceCoeffMidMod(32);
-    a.reduceCoeffMidMod(3);
-    Polynomial c = (a * privateKeyFp).reduceExpMod(11);
-    c.reduceCoeffMidMod(3);
-    return c;
-}
-
-vector<Polynomial> stringToBinPolys(string in, int n)
-{
-    vector<Polynomial> polyVec;
-    string binary = "";
-    for (int i = 0; i < in.length(); i++)
-    {
-        binary += bitset<8>(in[i]).to_string();
-    }
-    int numBits = in.length() * 8;
-    int numPolys = ceil((float)numBits / n);
-    for (int i = 0; i < numPolys; i++)
-    {
-        int polyArr[n] = {};
-        for (int j = 0; j < n; j++)
-        {
-            int index = i*n + j;
-            if (index < numBits)
-            {
-                polyArr[j] = binary[i*n + j] - 48;
-            }
-            else
-            {
-                polyArr[j] = 0;
-            }
-        }
-        Polynomial poly(polyArr, n);
-        polyVec.push_back(poly);
-
-    }
-    return polyVec;
-}
-
-string binPolysToString(vector<Polynomial> in, int n)
-
-{
-    string bitStr = "";
-    string out = "";
-    for (Polynomial poly : in)
-    {
-        int length = poly.getLength();
-        for (int i = 0; i < n; i++)
-        {
-            if (i < length)
-            {
-                bitStr += (poly.getCoeff(i) + 48); 
-            } 
-            else
-            {
-                bitStr += '0';
-            }
-                   
-        }
-    }
-    stringstream stream(bitStr);
-    while(stream.good())
-    {
-        bitset<8> bits;
-        stream >> bits;
-        char c = char(bits.to_ulong());
-        out += c;
-    }
-    return out;
-}
-
-string polysToBinaryString(vector<Polynomial> in, int n)
-{
-    string bitStr = "";
-    for (Polynomial poly : in)
-    {
-        int length = poly.getLength();
-        for (int i = 0; i < n; i++)
-        {
-            if (i < length)
-            {
-                bitset<8>bit(poly.getCoeff(i));
-                bitStr += bit.to_string();
-            } 
-            else
-            {
-                bitStr += '0';
-            }
-                   
-        }
-    }
-    return bitStr;
-}
-
-
-vector<Polynomial> encryptString(string toEncrypt, Polynomial publicKey)
-{
-    vector<Polynomial> plainPolys = stringToBinPolys(toEncrypt, 11);
-    vector<Polynomial> encryptedPolys;
-    for (Polynomial p : plainPolys)
-    {
-        Polynomial enc = encryptPoly(p, publicKey);
-        encryptedPolys.push_back(enc);
-    }
-    return encryptedPolys;
-}
-
-string decryptString(vector<Polynomial> toDecrypt, Polynomial privateKeyF, Polynomial privateKeyFp)
-{
-    vector<Polynomial> plainPolys;
-    for (Polynomial p : toDecrypt)
-    {
-        Polynomial dec = decryptPoly(p, privateKeyF, privateKeyFp);
-        plainPolys.push_back(dec);
-    }
-    string decrypted = binPolysToString(plainPolys, 11);
-    return decrypted;    
 }

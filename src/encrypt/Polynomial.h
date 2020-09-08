@@ -1,3 +1,4 @@
+#pragma once
 #include <vector>
 #include <iostream>
 using namespace std;
@@ -38,5 +39,6 @@ class Polynomial
         void setCoeff(int toSet, int index);
         int getDegree();
         int getDegree(int* arr, int length);
+        int getLength();
 
 };

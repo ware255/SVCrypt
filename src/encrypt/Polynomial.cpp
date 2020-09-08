@@ -237,4 +237,7 @@ int Polynomial::getDegree(int* arr, int length)
     return degree;
 }
 
-
+int Polynomial::getLength()
+{
+    return length;
+}
