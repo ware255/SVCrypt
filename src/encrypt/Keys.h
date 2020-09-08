@@ -15,4 +15,5 @@ class Keys
         Polynomial getPrivateKeyG();
         Polynomial getPrivateKeyFp();
         Polynomial getPrivateKeyFq();
+        string toString();
 };

@@ -6,12 +6,6 @@
 #include <algorithm>
 using namespace std;
 
-static bool compareTerm(vector<int> first, vector<int> second)
-{
-    int firstExponent = first[1];
-    int secondExponent = second[2];
-    return (firstExponent > secondExponent);
-}
 //Default constructor 
 Polynomial::Polynomial()
 {

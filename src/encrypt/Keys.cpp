@@ -10,8 +10,13 @@ static int extenedEuclid(int a, int b, int *x, int *y);
 
 Keys::Keys(Parameters params)
 {
-    Polynomial f = genRandPoly(params.getN(), 3, 4);
-    Polynomial g = genRandPoly(params.getN(), 3, 4);
+    srand(time(NULL));
+    // int rand1 = rand() % params.getN()/4;
+    // int rand2 = rand() % params.getN()/4;
+    // int rand3 = rand() % params.getN()/4;
+    // int rand4 = rand() % params.getN()/4;
+    Polynomial f = genRandPoly(params.getN(), 2, 3);
+    Polynomial g = genRandPoly(params.getN(), 4, 2);
     Polynomial invertedMod2 = invertPolyMod2(f, params.getN());
     Polynomial invertedMod3 = invertPolyMod3(f, params.getN());
     Polynomial invertedMod32 = invertPolyModPrimePower(f, invertedMod2, params.getN(), params.getX(), params.getR());
@@ -49,11 +54,21 @@ Polynomial Keys::getPrivateKeyFq()
     return privateKeyFq;
 }
 
+string Keys::toString()
+{
+    string out = "";
+    out += ("H(X): " + publicKey.toString() + '\n');
+    out += ("F(X): " + privateKeyF.toString() + '\n'); 
+    out += ("G(X): " + privateKeyG.toString() + '\n'); 
+    out += ("Fp(X): " + privateKeyFp.toString() + '\n'); 
+    out += ("Fq(X): " + privateKeyFq.toString() + '\n'); 
+    
+    return out;
+}
 
 
 static Polynomial genRandPoly(int n, int numOnes, int numNegOnes)
 {
-    srand(time(NULL));
     if (numOnes < 0 || numNegOnes < 0 || n < 0)
         throw "invalid paramaters";
     int r[n] = {};
