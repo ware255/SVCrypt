@@ -58,7 +58,7 @@ We also require that f is invertible mod p and mod q. Hence, there exists an Fp 
 
 `f * Fp (mod p) == 1 && f * Fq (mod q) == 1`
 
-We then take the tuple (f, Fp) to be Bob's private key\
+We then take the tuple (f, Fp) to be Bob's private key
 
 We then generate his public key h as follows:
 
@@ -91,9 +91,15 @@ Bug: Some values for amount of 1's and -'1s in f(x) and g(x) result in the progr
 
 
 # Additional Reading
-https://en.wikipedia.org/wiki/NTRUEncrypt\
-https://blog.isec.pl/ntru-public-key-cryptosystem-explained/#:~:text=NTRU%20(NTRUEncrypt%20and%20NTRUSign)%20is,special%20points%20in%20a%20lattice.\
-https://web.wpi.edu/Pubs/ETD/Available/etd-0430102-111906/unrestricted/corourke.pdf\
-https://assets.onboardsecurity.com/static/downloads/NTRU/resources/NTRUTech014.pdf\
-https://stackoverflow.com/questions/2421409/algorithm-for-computing-the-inverse-of-a-polynomial/2426520#2426520\
+
+https://en.wikipedia.org/wiki/NTRUEncrypt
+
+https://blog.isec.pl/ntru-public-key-cryptosystem-explained/#:~:text=NTRU%20(NTRUEncrypt%20and%20NTRUSign)%20is,special%20points%20in%20a%20lattice.
+
+https://web.wpi.edu/Pubs/ETD/Available/etd-0430102-111906/unrestricted/corourke.pdf
+
+https://assets.onboardsecurity.com/static/downloads/NTRU/resources/NTRUTech014.pdf
+
+https://stackoverflow.com/questions/2421409/algorithm-for-computing-the-inverse-of-a-polynomial/2426520#2426520
+
 https://crypto.stackexchange.com/questions/78200/how-to-find-the-inverse-of-a-polynomial-in-ntru-pkcs
