@@ -15,7 +15,23 @@ It is NOT guaranteed to be secure.
 6. [Additional Reading](#additional-reading)
 
 # Introduction
+This project implements the lattice-based cryptosystem NTRU in C++. It's main goals were
 
+* Understand the mathematics behind post-quantum cryptography
+* Utilise a low level programming language to make an efficient implementation
+* Bridge the gap between theoretical cryptography and a pratcical implementation
+
+Of these three goals, I would say that two out of three have been achieved. Firstly, the mathematics behind NTRU was not
+as complex as I first believed, and is in some ways no more daunting than that used in current public-key schemes. Just because
+the maths is quantum secure does not mean it is much harder to understand.
+
+Secondly, I believe I have managed to produce a practical implementation of many of the key algorithms with little reference material.
+This was definitely the hardest part of the project, as translating maths and pseudocode into c++ is not always as straight forward
+as it seems. A couple of the references used for the project are listed in the additional reading section at the end.
+
+Finally, and perhaps where the most work is needed, is the efficiency of the program. In the interest of time, and some sanity, I decided early on
+to switch to c++ and use some standard classes such as string and vector. I know this defeated the purpose of part of the project, but it
+sped up development dramatically. Hopefully, now that I understand NTRU, I can return to improve the efficieny of the program in the future.
 # Why do we need NTRU?
 The world of modern cryptography faces a huge, imminent problem. For years, we have relied on public-key schemes such as
 RSA, Diffe-Hellman and Elliptic-Curve cryptography to facilitate secure communication between people all over the world.
@@ -64,12 +80,20 @@ We then calculate the public key as:
 
 `H(X): 23 + 3x^1 + 22x^2 + 11x^3 + 22x^4 + 31x^5 + 30x^6 + 17x^7 + 1x^8 + 19x^9 + 7x^10`
 
+# Instructions
+The project can be compiled by simply running the `make` command from within the src/encrypt directory.\
+To encrypt a file, simply run `./svcrypt "filename"` (Upcoming feature)
+
 # Upcoming Features/Known Bugs
+Feature: Finish file handling, so files can be encrypted\
+Feature: Saving of generated keys to file\
+Bug: Some values for amount of 1's and -'1s in f(x) and g(x) result in the program not terminating.
+
 
 # Additional Reading
-https://en.wikipedia.org/wiki/NTRUEncrypt
-https://blog.isec.pl/ntru-public-key-cryptosystem-explained/#:~:text=NTRU%20(NTRUEncrypt%20and%20NTRUSign)%20is,special%20points%20in%20a%20lattice.
-https://web.wpi.edu/Pubs/ETD/Available/etd-0430102-111906/unrestricted/corourke.pdf
-https://assets.onboardsecurity.com/static/downloads/NTRU/resources/NTRUTech014.pdf
-https://stackoverflow.com/questions/2421409/algorithm-for-computing-the-inverse-of-a-polynomial/2426520#2426520
+https://en.wikipedia.org/wiki/NTRUEncrypt\
+https://blog.isec.pl/ntru-public-key-cryptosystem-explained/#:~:text=NTRU%20(NTRUEncrypt%20and%20NTRUSign)%20is,special%20points%20in%20a%20lattice.\
+https://web.wpi.edu/Pubs/ETD/Available/etd-0430102-111906/unrestricted/corourke.pdf\
+https://assets.onboardsecurity.com/static/downloads/NTRU/resources/NTRUTech014.pdf\
+https://stackoverflow.com/questions/2421409/algorithm-for-computing-the-inverse-of-a-polynomial/2426520#2426520\
 https://crypto.stackexchange.com/questions/78200/how-to-find-the-inverse-of-a-polynomial-in-ntru-pkcs
