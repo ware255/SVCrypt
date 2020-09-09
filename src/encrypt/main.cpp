@@ -39,12 +39,11 @@ int main()
     // publicKey.reduceCoeffMod(params.getQ());
     // cout << "H(X): " << publicKey.toString() << endl;
 
-    int mArr[] = {-1,0,0,1,-1,0,0,0,-1,1,1};
-    Polynomial message(mArr, params.getN());
-    Polynomial encrypted = encryptPoly(message, keys.getPublicKey(), params);
-    Polynomial decrypted = decryptPoly(encrypted, keys.getPrivateKeyF(), keys.getPrivateKeyFp(), params);
+    // int mArr[] = {-1,0,0,1,-1,0,0,0,-1,1,1};
+    // Polynomial message(mArr, params.getN());
+    // Polynomial encrypted = encryptPoly(message, keys.getPublicKey(), params);
+    // Polynomial decrypted = decryptPoly(encrypted, keys.getPrivateKeyF(), keys.getPrivateKeyFp(), params);
 
-    cout << "STRING" << endl;
     string in = "Hello world, how are you?";
     vector<Polynomial> enc = encryptString(in, keys.getPublicKey(), params);
     cout << "Encrypted" << polysToBinaryString(enc, params.getN()) << endl;
@@ -98,6 +97,7 @@ Polynomial decryptPoly(Polynomial toDecrypt, Polynomial privateKeyF, Polynomial 
     return c;
 }
 
+//Convers a string to a vector of degree N polys with coeffs in {0,1}
 vector<Polynomial> stringToBinPolys(string in, int n)
 {
     vector<Polynomial> polyVec;
@@ -130,6 +130,7 @@ vector<Polynomial> stringToBinPolys(string in, int n)
     return polyVec;
 }
 
+//Convers a vector of degree N polys with coeffs in {0,1} to a string
 string binPolysToString(vector<Polynomial> in, int n)
 
 {
@@ -162,6 +163,7 @@ string binPolysToString(vector<Polynomial> in, int n)
     return out;
 }
 
+//Convers a vector of degree N polys to a binary string
 string polysToBinaryString(vector<Polynomial> in, int n)
 {
     string bitStr = "";
@@ -185,7 +187,7 @@ string polysToBinaryString(vector<Polynomial> in, int n)
     return bitStr;
 }
 
-
+//Converts a string into multiple polynomials of degree N, then encrypts with public key
 vector<Polynomial> encryptString(string toEncrypt, Polynomial publicKey, Parameters param)
 {
     vector<Polynomial> plainPolys = stringToBinPolys(toEncrypt, param.getN());
@@ -197,7 +199,7 @@ vector<Polynomial> encryptString(string toEncrypt, Polynomial publicKey, Paramet
     }
     return encryptedPolys;
 }
-
+//Decrypts multiple polynomials of fegree N with private key and returns a string
 string decryptString(vector<Polynomial> toDecrypt, Polynomial privateKeyF, Polynomial privateKeyFp, Parameters param)
 {
     vector<Polynomial> plainPolys;
