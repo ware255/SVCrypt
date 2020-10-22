@@ -1,5 +1,5 @@
 # SVCrypt
-C++ implementation of NTRU Cryptosystem\
+C++ implementation of NTRU Cryptosystem, completed during summer internship.\
 https://en.wikipedia.org/wiki/NTRUEncrypt
 
 **WARNING: Do not use this to encrypt anything**\
