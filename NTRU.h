@@ -358,7 +358,7 @@ namespace Math {
         Polynomial XPoly(XArr, size+1);
         b = b * XPoly;
         inversePoly = b.reduceExpMod(n);
-        inversePoly.reduceCoeffMod(3);
+        inversePoly.reduceCoeffMod(p);
         // Return final inverse
         return inversePoly;
     }
