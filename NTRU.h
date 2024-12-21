@@ -195,7 +195,9 @@ public:
             return polynomial[index];
         else
         {
+#ifdef DEBUG
             std::cout << "Index " << index << " out of bounds" << std::endl;
+#endif
             throw "Index out of bounds";
         }
     }
@@ -205,7 +207,9 @@ public:
             polynomial[index] = toSet;
         else
         {
+#ifdef DEBUG
             std::cout << "Index out of bounds" << std::endl;
+#endif
             throw "Index out of bounds";
         }
     }
@@ -273,121 +277,6 @@ namespace Math {
         *y = x1;
         //returns gcd
         return gcd;
-    }
-
-    static int multInverseModPrime(int toInverse, int p)
-    {
-        int x, y;
-        int gcd = extenedEuclid(toInverse, p, &x, &y);
-        if (abs(gcd) != 1)
-        {
-#ifdef DEBUG
-            std::cout << "GCD = " << gcd << std::endl;
-#endif
-            throw "Inverse not computable";
-        }
-        else
-        {
-            //p added to force positive result
-            int res = (x%p + p) % p;
-            return res;
-        }
-    }
-
-    /*
-        Inverts polynomial in the ring (Z/pZ)[X]/(X^N - 1)
-        @input poly - polynomial to invert
-        @input n    - exponent of X^N - 1 i.e. X^N = 1 therefore X^(N+1) = X^N * X = 1 * X = X
-        @input p    - prime integer such that Z modulo pZ is a group
-        @output     - inverse of poly
-    */
-    static Polynomial invertPoly(Polynomial poly, int n, int p)
-    {
-        //return value
-        int inversePolyArr[n] = {};
-        Polynomial inversePoly(inversePolyArr, n);
-    
-        //setup
-        int k = 0;
-        int tempArrB[1] = {1};
-        int tempArrC[1] = {0};
-        int x[2] = {0,1};
-        Polynomial b(tempArrB, 1);
-        Polynomial c(tempArrC, 1);
-        Polynomial xPoly(x, 2);
-        Polynomial f = poly;
-
-        //creates polynomial X^N - 1
-        int maxPolyArr[n+1] = {};
-        maxPolyArr[n] = 1;
-        maxPolyArr[0] = -1;
-        Polynomial g(maxPolyArr, n+1);
-        int count = 10;
-#ifdef DEBUG
-        std::cout << "Start: " << f.toString() << std::endl;
-        std::cout << "X:" << g.toString() << std::endl;
-#endif
-        while(true)
-        {
-            while (f.getCoeff(0) == 0)
-            {
-                int fDegree = f.getDegree();
-                std::cout << f.toString() << std::endl;
-                for (int i = 1; i <= fDegree ; i++)
-                    f.setCoeff(f.getCoeff(i), i-1); // f(x) => f(x)/x
-                f.setCoeff(0, fDegree);
-                std::cout << f.toString() << std::endl;
-                c = c * xPoly;
-                k += 1;
-            }
-            std::cout << f.getDegree() << std::endl;
-            if (f.getDegree() == 0)
-                break;
-            if (f.getDegree() < g.getDegree())
-            {
-#ifdef DEBUG
-                std::cout << "degree <" << std::endl;
-#endif
-                Polynomial temp = f;
-                f = g;
-                g = temp;
-                temp = b;
-                b = c;
-                c = temp;
-    
-            }
-            int u = ((f.getCoeff(0) * multInverseModPrime(g.getCoeff(0), p) % p) + p) % p;
-#ifdef DEBUG
-            std::cout << "u:" << u << std::endl;
-#endif
-            Polynomial tempG = g * u;
-            Polynomial tempC = c * u;
-#ifdef DEBUG
-            std::cout << f.toString() << std::endl;
-            std::cout << g.toString() << std::endl;
-#endif
-            f = f - tempG;
-            b = b - tempC;
-            f.reduceCoeffMod(p);
-            g.reduceCoeffMod(p);
-            b.reduceCoeffMod(p);
-            c.reduceCoeffMod(p);
-            count--;
-        }
-        int f_0Inverse = multInverseModPrime(f.getCoeff(0), p);
-        b = b * f_0Inverse;
-        b.reduceCoeffMod(p);
-
-        // B(X) => X^(n-k) B(X) (mod X^N - 1)
-        int XArr[n - k + 1] = {};
-        XArr[n-k] = 1;
-        Polynomial XPoly(XArr, n-k+1);
-        b = b * XPoly;
-        inversePoly = b;
-#ifdef DEBUG
-        std::cout << f.toString() << std::endl;
-#endif
-        return inversePoly;
     }
 
     /*
@@ -588,7 +477,7 @@ namespace Math {
     {
         std::vector<Polynomial> polyVec;
         std::string binary = "";
-        for (int i = 0; i < in.length(); i++)
+        for (size_t i = 0; i < in.length(); i++)
             binary += std::bitset<8>(in[i]).to_string();
         int numBits = in.length() * 8;
         int numPolys = ceil((float)numBits / n);
