@@ -280,12 +280,13 @@ namespace Math {
     }
 
     /*
-        Inverts polynomial in the ring (Z/3Z)[X]/(X^N - 1)
+        Inverts polynomial in the ring (Z/pZ)[X]/(X^N - 1)
         @input poly - polynomial to invert
         @input n    - exponent of X^N - 1 i.e. X^N = 1 therefore X^(N+1) = X^N * X = 1 * X = X
+        @input p    - mod
         @output     - inverse of poly
     */
-    static Polynomial invertPolyMod3(Polynomial poly, int n)
+    static Polynomial invertPoly(Polynomial poly, int n, int p)
     {
         //return value
         int inversePolyArr[n] = {};
@@ -313,7 +314,7 @@ namespace Math {
                 // f(x) => f(x)/x
                 int fDegree = f.getDegree();
                 for (int i = 1; i <= fDegree ; i++)
-                    f.setCoeff(f.getCoeff(i), i-1); 
+                    f.setCoeff(f.getCoeff(i), i-1);
                 f.setCoeff(0, fDegree);
                 // c(x) => x * c(x)
                 c = c * xPoly;
@@ -344,10 +345,10 @@ namespace Math {
                 b = b + c;
             }
             //Reduce all polynomials mod 3
-            f.reduceCoeffMod(3);
-            g.reduceCoeffMod(3);
-            b.reduceCoeffMod(3);
-            c.reduceCoeffMod(3);
+            f.reduceCoeffMod(p);
+            g.reduceCoeffMod(p);
+            b.reduceCoeffMod(p);
+            c.reduceCoeffMod(p);
         }
 
         // B(X) => F_0 * X^(-k) B(X) (mod X^N - 1)
@@ -358,83 +359,6 @@ namespace Math {
         b = b * XPoly;
         inversePoly = b.reduceExpMod(n);
         inversePoly.reduceCoeffMod(3);
-        // Return final inverse
-        return inversePoly;
-    }
-
-    /*
-        Inverts polynomial in the ring (Z/2Z)[X]/(X^N - 1)
-        @input poly - polynomial to invert
-        @input n    - exponent of X^N - 1 i.e. X^N = 1 therefore X^(N+1) = X^N * X = 1 * X = X
-        @output     - inverse of poly
-    */
-    static Polynomial invertPolyMod2(Polynomial poly, int n)
-    {
-        //return value
-        int inversePolyArr[n] = {};
-        Polynomial inversePoly(inversePolyArr, n);
-
-        //setup
-        int k = 0;
-        int tempArrB[1] = {1};
-        int tempArrC[1] = {0};
-        int x[2] = {0,1};
-        Polynomial b(tempArrB, 1);
-        Polynomial c(tempArrC, 1);
-        Polynomial xPoly(x, 2);
-        Polynomial f = poly;
-
-        //creates polynomial X^N - 1
-        int maxPolyArr[n+1] = {};
-        maxPolyArr[n] = 1;
-        maxPolyArr[0] = -1;
-        Polynomial g(maxPolyArr, n+1);
-        while(true)
-        {   
-            while (f.getCoeff(0) == 0)
-            {
-                // f(x) => f(x)/x
-                int fDegree = f.getDegree();
-                for (int i = 1; i <= fDegree ; i++)
-                    f.setCoeff(f.getCoeff(i), i-1); 
-                f.setCoeff(0, fDegree);
-                // c(x) => x * c(x)
-                c = c * xPoly;
-                // k => k + 1
-                k += 1;
-            }
-            if (f.getDegree() == 0 && f.getCoeff(0) != 0)
-                break;
-            //Swaps polynomials f with g / b with c
-            if (f.getDegree() < g.getDegree())
-            {
-                Polynomial temp = f;
-                f = g;
-                g = temp;
-                temp = b;
-                b = c;
-                c = temp;
-    
-            }
-            //f -> f(x) + g(x) mod 2
-            //b -> b(x) + c(x) mod 2
-            f = f + g;
-            b = b + c;
-            //Reduce all polynomials mod 2
-            f.reduceCoeffMod(2);
-            g.reduceCoeffMod(2);
-            b.reduceCoeffMod(2);
-            c.reduceCoeffMod(2);
-        }
-
-        // B(X) => F_0 * X^(-k) B(X) (mod X^N - 1)
-        int size = (((-k) % n) + n) % n;
-        int XArr[size+1] = {};
-        XArr[size] = 1;
-        Polynomial XPoly(XArr, size+1);
-        b = b * XPoly;
-        inversePoly = b.reduceExpMod(n);
-        inversePoly.reduceCoeffMod(2);
         // Return final inverse
         return inversePoly;
     }
@@ -558,8 +482,8 @@ public:
     Keys(Parameters params) {
         Polynomial f = Math::genRandPoly(params.getN(), 2, 3);
         Polynomial g = Math::genRandPoly(params.getN(), 4, 2);
-        Polynomial invertedMod2 = Math::invertPolyMod2(f, params.getN());
-        Polynomial invertedMod3 = Math::invertPolyMod3(f, params.getN());
+        Polynomial invertedMod2 = Math::invertPoly(f, params.getN(), 2);
+        Polynomial invertedMod3 = Math::invertPoly(f, params.getN(), 3);
         Polynomial invertedMod32 = Math::invertPolyModPrimePower(f, invertedMod2, params.getN(), params.getX(), params.getR());
         int arr3[1] = {3};
         Polynomial p3(arr3,1);
