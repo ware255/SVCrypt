@@ -19,7 +19,7 @@ class Parameters {
     int n;
 public:
     Parameters(int inp, int inx, int inr, int inq, int inn) {
-    	p = inp;
+        p = inp;
         x = inx;
         r = inr;
         q = inq;
@@ -27,11 +27,11 @@ public:
     }
 
     Parameters() {
-        p = 0;
-        x = 0;
-        r = 0;
-        q = 0;
-        n = 0;
+        p = 3;
+        x = 2;
+        r = 64;
+        q = 2048;
+        n = 701;
     }
 
     int getP() { return p; }
@@ -43,7 +43,7 @@ public:
 
 class Polynomial {
     //length of polynomial (Degree + 1)
-    int length = 0;
+    size_t length = 0;
     //Dynamic array of terms in polynomial
     //They will be in order and accessible by index 
     std::vector<int> polynomial;
@@ -54,16 +54,26 @@ public:
         polynomial = {};
     }
 
-    Polynomial(std::vector<int> &poly) {
+    Polynomial(std::vector<int>& poly) {
         polynomial = poly;
         length = poly.size();
     }
 
     //Constructor takes coefficient array ie {1,2,3} and returns a polynomial e.g. 1 + 2x + 3x^2
-    Polynomial(int* poly, int len) {
-        int degree = getDegree(poly, len);
+    Polynomial(std::vector<int> poly, size_t len) {
+        size_t degree = getDegree(poly, len);
         std::vector<int> v;
-        for (int i = 0; i < degree + 1; i++)
+        for (size_t i = 0; i < degree + 1; i++)
+            v.push_back(poly[i]);
+        polynomial = v;
+        length = degree + 1;
+    }
+
+    //Constructor takes coefficient array ie {1,2,3} and returns a polynomial e.g. 1 + 2x + 3x^2
+    Polynomial(int* poly, size_t len) {
+        size_t degree = getDegree(poly, len);
+        std::vector<int> v;
+        for (size_t i = 0; i < degree + 1; i++)
             v.push_back(poly[i]);
         polynomial = v;
         length = degree + 1;
@@ -71,19 +81,19 @@ public:
 
     //Returns string for debugging
     std::string toString() {
-        std::string output ="";
-        for(int i = 0; i < length; i++)
-        {   
+        std::string output = "";
+        for (size_t i = 0; i < length; i++)
+        {
             int coeff = polynomial[i];
             if (true)
             {
                 if (i != 0)
-                    output += (std::to_string(coeff) + "x^" + std::to_string(i)  + " + ");
+                    output += (std::to_string(coeff) + "x^" + std::to_string(i) + " + ");
                 else
                     output += (std::to_string(coeff) + " + ");
             }
         }
-    
+
         //If polynomial is empty then show as 0
         if (output.compare("") == 0)
             output += "0  ";
@@ -95,43 +105,43 @@ public:
     std::vector<int> getRawPoly() { return polynomial; }
 
     //Overrides addition
-    Polynomial operator+(Polynomial &adding) {
+    Polynomial operator+(Polynomial& adding) {
         std::vector<int> polynomial1 = getRawPoly();
         std::vector<int> polynomial2 = adding.getRawPoly();
-        
-        int degree1 = length;
-        int degree2 = adding.length;
-        int maxDegree = std::max(degree1,degree2);
 
-        int ret[maxDegree] = {};
-        for (int i = 0; i < maxDegree; i++)
+        size_t degree1 = length;
+        size_t degree2 = adding.length;
+        size_t maxDegree = std::max(degree1, degree2);
+
+        //int ret[maxDegree] = {};
+        std::vector<int> ret(maxDegree);
+        for (size_t i = 0; i < maxDegree; i++)
         {
-            int total = 0;
-            if(i < degree1)
-                total += polynomial1[i];
-            if(i < degree2)
-                total += polynomial2[i];
-            ret[i] = total;
+            if (i < degree1)
+                ret[i] += polynomial1[i];
+            if (i < degree2)
+                ret[i] += polynomial2[i];
         }
         return Polynomial(ret, maxDegree);
     }
 
     //Overrides subtraction
-    Polynomial operator-(Polynomial &subbing) {
+    Polynomial operator-(Polynomial& subbing) {
         std::vector<int> polynomial1 = getRawPoly();
         std::vector<int> polynomial2 = subbing.getRawPoly();
-        
-        int degree1 = length;
-        int degree2 = subbing.length;
-        int maxDegree = std::max(degree1,degree2);
 
-        int ret[maxDegree] = {};
-        for (int i = 0; i < maxDegree; i++)
+        size_t degree1 = length;
+        size_t degree2 = subbing.length;
+        size_t maxDegree = std::max(degree1, degree2);
+
+        //int ret[maxDegree] = {};
+        std::vector<int> ret(maxDegree);
+        for (size_t i = 0; i < maxDegree; i++)
         {
             int total = 0;
-            if(i < degree1)
+            if (i < degree1)
                 total += polynomial1[i];
-            if(i < degree2)
+            if (i < degree2)
                 total -= polynomial2[i];
             ret[i] = total;
         }
@@ -139,18 +149,18 @@ public:
     }
 
     //Overrides multiplication
-    Polynomial operator*(Polynomial &p) {
+    Polynomial operator*(Polynomial& p) {
         std::vector<int> poly1 = getRawPoly();
         std::vector<int> poly2 = p.getRawPoly();
 
-        int maxLength = (length-1) + (p.length-1) + 1;
-        int ret[maxLength] = {};
-        for (int i = 0; i < length; i++)
+        size_t maxLength = (length - 1) + (p.length - 1) + 1;
+        //int ret[maxLength] = {};
+        std::vector<int> ret(maxLength);
+        for (size_t i = 0; i < length; i++)
         {
-            for(int j = 0; j < p.length; j++)
+            for (size_t j = 0; j < p.length; j++)
             {
-                int term = poly1[i] * poly2[j];
-                ret[i + j] += term;
+                ret[i + j] += poly1[i] * poly2[j];
             }
         }
 
@@ -159,38 +169,40 @@ public:
 
     //Overrides scalar multiplication;
     Polynomial operator*(const int x) {
-        int ret[length] = {};
-        for (int i = 0; i < length; i++)
+        //int ret[length] = {};
+        std::vector<int> ret(length);
+        for (size_t i = 0; i < length; i++)
             ret[i] = (getCoeff(i) * x);
         return Polynomial(ret, length);
     }
 
     //Reduces all coefficients mod x ie 2 + 4x + 5x^2 mod 3 = 2 + x + 2x^2
     void reduceCoeffMod(int x) {
-        for(int i = 0; i < length; i++)
+        for (size_t i = 0; i < length; i++)
             polynomial[i] = ((polynomial[i] % x) + x) % x;
     }
 
     //Reduces all coefficients to x/2 either side of 0 ie 2 + 4x + 5x^2 mod 3 = -1 + x + -1x^2
     void reduceCoeffMidMod(int x) {
-        for(int i = 0; i < length; i++)
+        for (size_t i = 0; i < length; i++)
         {
             int temp = polynomial[i];
             temp = ((temp % x) + x) % x;
-            if (temp > x/2)
+            if (temp > x / 2)
                 temp = temp - x;
             polynomial[i] = temp;
         }
     }
 
     Polynomial reduceExpMod(int x) {
-        int newPoly[x] = {};
-        for(int i = 0; i < length; i++)
+        //int newPoly[x] = {};
+        std::vector<int> newPoly(x);
+        for (size_t i = 0; i < length; i++)
             newPoly[i % x] += polynomial[i];
         return Polynomial(newPoly, x);
     }
 
-    int getCoeff(int index) {
+    int getCoeff(size_t index) {
         if (index < length)
             return polynomial[index];
         else
@@ -202,7 +214,7 @@ public:
         }
     }
 
-    void setCoeff(int toSet, int index) {
+    void setCoeff(int toSet, size_t index) {
         if (index < length)
             polynomial[index] = toSet;
         else
@@ -214,45 +226,65 @@ public:
         }
     }
 
-    int getDegree() {
-        int degree = 0;
-        for (int i = 0; i < length; i++)
+    size_t getDegree() {
+        size_t degree = 0;
+        for (size_t i = 0; i < length; i++)
             if (polynomial[i] != 0)
                 degree = i;
         return degree;
     }
 
-    int getDegree(int* arr, int length) {
-        int degree = 0;
-        for (int i = 0; i < length; i++)
+    size_t getDegree(std::vector<int> arr, size_t length) {
+        size_t degree = 0;
+        for (size_t i = 0; i < length; i++)
             if (arr[i] != 0)
                 degree = i;
         return degree;
     }
 
-    int getLength() { return length; }
+    size_t getDegree(int* arr, size_t length) {
+        size_t degree = 0;
+        for (size_t i = 0; i < length; i++)
+            if (arr[i] != 0)
+                degree = i;
+        return degree;
+    }
+
+    size_t getLength() { return length; }
 };
 
 namespace Math {
+    template<typename T>
+    T pow(T a, T b) {
+        T res = 1;
+        for (T i = 0; b > 0; i++) {
+            if (b & 1)  res *= a;
+            res *= res;
+            b >>= 1;
+        }
+        return res;
+    }
+
     static Polynomial genRandPoly(int n, int numOnes, int numNegOnes) {
         if (numOnes < 0 || numNegOnes < 0 || n < 0)
             throw "invalid paramaters";
         std::random_device rd;
         std::mt19937 mt(rd());
         //std::uniform_int_distribution<int> dist(8192, 65535);
-        int r[n] = {};
+        //int r[n] = {};
+        std::vector<int> r(n);
         while ((numOnes != 0) || (numNegOnes != 0))
         {
             int randIndex = mt() % n;
             if (r[randIndex] == 0)
             {
-                if(numOnes > 0)
+                if (numOnes > 0)
                 {
                     r[randIndex] = 1;
                     numOnes--;
                 }
                 else if (numNegOnes > 0)
-                {   
+                {
                     r[randIndex] = -1;
                     numNegOnes--;
                 }
@@ -261,7 +293,7 @@ namespace Math {
         return Polynomial(r, n);
     }
 
-    static int extenedEuclid(int a, int b, int *x, int *y)
+    static int extenedEuclid(int a, int b, int* x, int* y)
     {
         if (a == 0)
         {
@@ -270,10 +302,10 @@ namespace Math {
             return b;
         }
         int x1, y1;
-        int gcd = extenedEuclid(b%a, a, &x1, &y1);
+        int gcd = extenedEuclid(b % a, a, &x1, &y1);
 
         //updates x and y passed
-        *x = y1 - (b/a) * x1; 
+        *x = y1 - (b / a) * x1;
         *y = x1;
         //returns gcd
         return gcd;
@@ -289,32 +321,34 @@ namespace Math {
     static Polynomial invertPoly(Polynomial poly, int n, int p)
     {
         //return value
-        int inversePolyArr[n] = {};
+        //int inversePolyArr[n] = {};
+        std::vector<int> inversePolyArr(n);
         Polynomial inversePoly(inversePolyArr, n);
 
         //setup
         int k = 0;
-        int tempArrB[1] = {1};
-        int tempArrC[1] = {0};
-        int x[2] = {0,1};
+        int tempArrB[1] = { 1 };
+        int tempArrC[1] = { 0 };
+        int x[2] = { 0,1 };
         Polynomial b(tempArrB, 1);
         Polynomial c(tempArrC, 1);
         Polynomial xPoly(x, 2);
         Polynomial f = poly;
 
         //creates polynomial X^N - 1
-        int maxPolyArr[n+1] = {};
+        //int maxPolyArr[n + 1] = {};
+        std::vector<int> maxPolyArr(n + 1);
         maxPolyArr[n] = 1;
         maxPolyArr[0] = -1;
-        Polynomial g(maxPolyArr, n+1);
-        while(true)
-        {   
+        Polynomial g(maxPolyArr, n + 1);
+        while (true)
+        {
             while (f.getCoeff(0) == 0)
             {
                 // f(x) => f(x)/x
-                int fDegree = f.getDegree();
-                for (int i = 1; i <= fDegree ; i++)
-                    f.setCoeff(f.getCoeff(i), i-1);
+                size_t fDegree = f.getDegree();
+                for (size_t i = 1; i <= fDegree; i++)
+                    f.setCoeff(f.getCoeff(i), i - 1);
                 f.setCoeff(0, fDegree);
                 // c(x) => x * c(x)
                 c = c * xPoly;
@@ -332,7 +366,7 @@ namespace Math {
                 temp = b;
                 b = c;
                 c = temp;
-    
+
             }
             if (f.getCoeff(0) == g.getCoeff(0))
             {
@@ -353,9 +387,10 @@ namespace Math {
 
         // B(X) => F_0 * X^(-k) B(X) (mod X^N - 1)
         int size = (((-k) % n) + n) % n;
-        int XArr[size+1] = {};
+        //int XArr[size + 1] = {};
+        std::vector<int> XArr(size + 1);
         XArr[size] = 1 * f.getCoeff(0);
-        Polynomial XPoly(XArr, size+1);
+        Polynomial XPoly(XArr, size + 1);
         b = b * XPoly;
         inversePoly = b.reduceExpMod(n);
         inversePoly.reduceCoeffMod(p);
@@ -376,10 +411,10 @@ namespace Math {
     {
         //initialise
         int q = p;
-        int max = std::pow(p, r);
+        int max = Math::pow(p, r);
         Polynomial out = inverseModp;
         // Initialise constant f(x) = 2 outside of while loop
-        int twoArr[1] = {2};
+        int twoArr[1] = { 2 };
         Polynomial twoPoly = Polynomial(twoArr, 1);
         //while q < p^r
         while (q < max)
@@ -403,16 +438,17 @@ namespace Math {
         std::string binary = "";
         for (size_t i = 0; i < in.length(); i++)
             binary += std::bitset<8>(in[i]).to_string();
-        int numBits = in.length() * 8;
-        int numPolys = ceil((float)numBits / n);
-        for (int i = 0; i < numPolys; i++)
+        size_t numBits = in.length() * 8;
+        size_t numPolys = (numBits + n - 1) / n;
+        for (size_t i = 0; i < numPolys; i++)
         {
-            int polyArr[n] = {};
+            //int polyArr[n] = {};
+            std::vector<int> polyArr(n);
             for (int j = 0; j < n; j++)
             {
-                int index = i*n + j;
+                size_t index = i * n + j;
                 if (index < numBits)
-                    polyArr[j] = binary[i*n + j] - 48;
+                    polyArr[j] = binary[i * n + j] - 48;
                 else
                     polyArr[j] = 0;
             }
@@ -423,23 +459,23 @@ namespace Math {
     }
 
     //Convers a vector of degree N polys with coeffs in {0,1} to a string
-    std::string binPolysToString(std::vector<Polynomial> in, int n)
+    std::string binPolysToString(std::vector<Polynomial> in, size_t n)
     {
         std::string bitStr = "";
         std::string out = "";
         for (Polynomial poly : in)
         {
-            int length = poly.getLength();
-            for (int i = 0; i < n; i++)
+            size_t length = poly.getLength();
+            for (size_t i = 0; i < n; i++)
             {
                 if (i < length)
-                    bitStr += (poly.getCoeff(i) + 48); 
+                    bitStr += (poly.getCoeff(i) + 48);
                 else
-                    bitStr += '0';     
+                    bitStr += '0';
             }
         }
         std::stringstream stream(bitStr);
-        while(stream.good())
+        while (stream.good())
         {
             std::bitset<8> bits;
             stream >> bits;
@@ -450,13 +486,13 @@ namespace Math {
     }
 
     //Convers a vector of degree N polys to a binary string
-    std::string polysToBinaryString(std::vector<Polynomial> in, int n)
+    std::string polysToBinaryString(std::vector<Polynomial> in, size_t n)
     {
         std::string bitStr = "";
         for (Polynomial poly : in)
         {
-            int length = poly.getLength();
-            for (int i = 0; i < n; i++)
+            size_t length = poly.getLength();
+            for (size_t i = 0; i < n; i++)
             {
                 if (i < length)
                 {
@@ -485,9 +521,9 @@ public:
         Polynomial invertedMod2 = Math::invertPoly(f, params.getN(), 2);
         Polynomial invertedMod3 = Math::invertPoly(f, params.getN(), 3);
         Polynomial invertedMod32 = Math::invertPolyModPrimePower(f, invertedMod2, params.getN(), params.getX(), params.getR());
-        int arr3[1] = {3};
-        Polynomial p3(arr3,1);
-        Polynomial h = ((p3*invertedMod32)*g).reduceExpMod(params.getN());
+        int arr3[1] = { 3 };
+        Polynomial p3(arr3, 1);
+        Polynomial h = ((p3 * invertedMod32) * g).reduceExpMod(params.getN());
         h.reduceCoeffMod(params.getQ());
 
         publicKey = h;
@@ -515,7 +551,7 @@ public:
 };
 
 namespace NTRU {
-    /* 
+    /*
         Function to encrypt a given polynomial with a recipients public key
 
         Encrypted = r * publicKey + toEncypt (mod q) where r is a poly with small coeffs
@@ -526,15 +562,15 @@ namespace NTRU {
     */
     Polynomial encryptPoly(Polynomial toEncrypt, Polynomial publicKey, Parameters p)
     {
-        int rArr[] = {-1,0,1,1,1,-1,0,-1};
-        Polynomial r(rArr,8);
+        int rArr[] = { -1,0,1,1,1,-1,0,-1 };
+        Polynomial r(rArr, 8);
         Polynomial rPubKey = (r * publicKey).reduceExpMod(p.getN());
         Polynomial encrypted = rPubKey + toEncrypt;
         encrypted.reduceCoeffMod(p.getQ());
         return encrypted;
     }
 
-    /* 
+    /*
         Function to decrypt a given encrypted polynomial
 
         Procedure:
